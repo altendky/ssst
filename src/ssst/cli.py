@@ -1,3 +1,4 @@
+import functools
 import typing
 
 import click
@@ -28,9 +29,33 @@ def cli() -> None:
     type=click.Choice(choices=sorted(qt_api_cli_names.keys())),
     default=automatic_api_cli_name,
     help=(
-        f"Default uses PySide2 if {ssst._utilities.qt_api_variable_name} is not set."
+        f"Default lets QtPy choose.  {ssst._utilities.qt_api_variable_name} will be"
+        f" used if set."
     ),
 )
-def gui(qt_api_string: str) -> None:
+def gui(qt_api_string: str) -> None:  # pragma: no cover
+    # TODO: This is generally actually covered by
+    #       ssst._tests.test_cli.test_gui_persists but the coverage recording or
+    #       reporting isn't working out.
+    #       https://github.com/altendky/ssst/issues/13
+
+    import ssst._utilities
+
     qt_api = qt_api_cli_names[qt_api_string]
-    ssst._utilities.configure_qtpy(api=qt_api)
+
+    if qt_api is not None:
+        ssst._utilities.configure_qtpy(api=qt_api)
+
+    import ssst.gui.main
+    import qtrio
+
+    qtrio.run(functools.partial(ssst.gui.main.Window.start, title="SSST"))
+
+
+@cli.command()
+def uic() -> None:  # pragma: no cover
+    # Coverage not required during testing since this has to work to create all the
+    # UI modules that the tests exercise anyways.  Sort of...
+    import ssst._utilities
+
+    ssst._utilities.compile_ui(output=click.echo)
