@@ -1,0 +1,22 @@
+import pathlib
+
+import yaml
+
+
+# https://github.com/yaml/pyyaml/issues/103
+class NoAliasDumper(yaml.SafeDumper):
+    def ignore_aliases(self, data):
+        return True
+
+
+def main():
+    here = pathlib.Path(__file__).parent
+    input_file = here.joinpath("ci.yml")
+    output_file = here.joinpath("workflows", "ci.yml")
+
+    loaded = yaml.load(input_file.read_text(encoding="UTF-8"), Loader=yaml.SafeLoader)
+    loaded.pop("anchors")
+    output_file.write_text(yaml.dump(loaded, sort_keys=False, Dumper=NoAliasDumper), encoding="UTF-8")
+
+
+main()
