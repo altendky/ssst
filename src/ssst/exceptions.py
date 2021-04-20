@@ -29,7 +29,7 @@ class BaseAddressNotFoundError(SsstError):
     __module__ = "ssst"
 
 
-class InternalError(Exception):
+class InternalError(SsstError):
     """Raised when things that should not happen do, and they aren't the user's fault."""
 
     # https://github.com/sphinx-doc/sphinx/issues/7493
