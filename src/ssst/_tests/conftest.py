@@ -10,9 +10,6 @@ import pytest
 import _pytest.fixtures
 import trio
 
-import sundog.client
-import sundog.server
-
 
 pytest_plugins = "pytester"
 
