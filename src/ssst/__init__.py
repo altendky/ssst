@@ -2,10 +2,7 @@
 
 from ssst.exceptions import (
     SsstError,
-    BaseAddressNotFoundError,
     InternalError,
-    InvalidBaseAddressError,
-    ModbusError,
     QtpyError,
     ReuseError,
     UnexpectedEmissionError,
