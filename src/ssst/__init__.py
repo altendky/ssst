@@ -3,7 +3,7 @@
 from ssst.exceptions import (
     SsstError,
     InternalError,
-    QtpyError,
+    QtsError,
     ReuseError,
     UnexpectedEmissionError,
 )

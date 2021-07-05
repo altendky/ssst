@@ -7,9 +7,9 @@ import typing
 
 import async_generator
 import attr
-from qtpy import QtCore
-from qtpy import QtGui
-from qtpy import QtWidgets
+from qts import QtCore
+from qts import QtGui
+from qts import QtWidgets
 import qtrio._core  # TODO: uh...  private?
 import qtrio.dialogs
 import trio

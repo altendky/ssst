@@ -1,11 +1,11 @@
 Utilities
 =========
 
-QtPy
+qts
 ----
 
 .. autoclass:: ssst._utilities.QtApis
-.. autofunction:: ssst._utilities.configure_qtpy
+.. autofunction:: ssst._utilities.configure_qts
 .. autodata:: ssst._utilities.qt_api_variable_name
 
 

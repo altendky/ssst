@@ -6,19 +6,20 @@ import sys
 import sysconfig
 import typing
 
+import qts
+
 import ssst
 import ssst.exceptions
 
 
-# must match qtpy.QT_API but we can't import it until we've set this
-qt_api_variable_name = "QT_API"
-"""The name of the environment variable QtPy checks for selecting the desired
+qt_api_variable_name = "QTS_WRAPPER"
+"""The name of the environment variable qts checks for selecting the desired
 Qt wrapper API."""
 
 
 class QtApis(enum.Enum):
-    """Supported Qt APIs.  Values correspond to qtpy names for each.  Generally used
-    as a parameter to :func:`ssst._utilities.configure_qtpy()`.
+    """Supported Qt APIs.  Values correspond to qts names for each.  Generally used
+    as a parameter to :func:`ssst._utilities.configure_qts()`.
     """
 
     PyQt5 = "pyqt5"
@@ -28,17 +29,20 @@ class QtApis(enum.Enum):
     """PySide2 by Qt"""
 
 
-def configure_qtpy(api: QtApis) -> None:
-    """Set the configuration such that QtPy will use the specified Qt wrapper API.
+def configure_qts(api: QtApis) -> None:
+    """Set the configuration such that qts will use the specified Qt wrapper API.
 
     Args:
-        api: The Qt wrapper API for QtPy to use.
+        api: The Qt wrapper API for qts to use.
     """
-    if "qtpy" in sys.modules:
-        raise ssst.exceptions.QtpyError("qtpy imported prior to configuring the API")
+    if qts.wrapper is not None:
+        raise ssst.exceptions.QtsError(f"qts already configured: {qts.wrapper}")
 
     if qt_api_variable_name not in os.environ:
         os.environ[qt_api_variable_name] = api.value
+        qts.set_wrapper(qts.wrapper_by_name(api.value))
+    else:
+        qts.autoset_wrapper()
 
 
 def scripts_path() -> pathlib.Path:
@@ -176,20 +180,16 @@ def compile_paths(
             in no output.
 
     Raises:
-        ssst.QtpyError: If the ``qtpy`` module is not already imported and the import
+        ssst.QtsError: If the ``qts`` module is not already imported and the import
             has not been forced.
     """
     if output is None:
         output = _do_nothing
 
-    if "qtpy" not in sys.modules:
-        raise ssst.QtpyError(
-            "QtPy is expected to be imported before calling this function.",
+    if qts.wrapper is None:
+        raise ssst.QtsError(
+            "qts is expected to be configured before calling this function.",
         )
-
-    # If you import at the top you hazard beating the configuration of QtPy.  Not
-    # a preferred design but it is reality.
-    import qtpy
 
     for in_path in ui_paths:
         out_path = in_path.with_name(f"{in_path.stem}{suffix}.py")
@@ -197,9 +197,9 @@ def compile_paths(
         output(f"Converting: {in_path} -> {out_path}")
 
         script_name = {
-            "PyQt5": "pyuic5",
-            "PySide2": "pyside2-uic",
-        }[qtpy.API_NAME]
+            qts.pyqt_5_wrapper: "pyuic5",
+            qts.pyside_5_wrapper: "pyside2-uic",
+        }[qts.wrapper]
 
         completed_process = subprocess.run(
             [os.fspath(script_path(name=script_name)), os.fspath(in_path)],
@@ -208,6 +208,6 @@ def compile_paths(
         )
 
         intermediate = completed_process.stdout.decode("utf-8")
-        intermediate = intermediate.replace(f"from {qtpy.API_NAME}", "from qtpy")
+        intermediate = intermediate.replace(f"from {qts.wrapper.module_name}", "from qts")
 
         out_path.write_text(intermediate, encoding=encoding)
