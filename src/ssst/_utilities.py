@@ -208,6 +208,8 @@ def compile_paths(
         )
 
         intermediate = completed_process.stdout.decode("utf-8")
-        intermediate = intermediate.replace(f"from {qts.wrapper.module_name}", "from qts")
+        intermediate = intermediate.replace(
+            f"from {qts.wrapper.module_name}", "from qts"
+        )
 
         out_path.write_text(intermediate, encoding=encoding)
