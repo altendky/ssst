@@ -5,6 +5,8 @@ block_cipher = None
 
 import os
 
+import qts
+
 
 # https://github.com/pyinstaller/pyinstaller/wiki/Recipe-Setuptools-Entry-Point
 def Entrypoint(dist, group, name, **kwargs):
@@ -42,7 +44,8 @@ def Entrypoint(dist, group, name, **kwargs):
 
 name = "ssst"
 
-hidden_imports = [os.environ["SSST_QT_API"]]
+qts.autoset_wrapper()
+hidden_imports = [qts.wrapper.module_name]
 
 a = Entrypoint(
     dist=name,
