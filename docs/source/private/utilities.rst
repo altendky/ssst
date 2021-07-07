@@ -1,8 +1,8 @@
 Utilities
 =========
 
-qts
-----
+Qt Wrapper
+----------
 
 .. autoclass:: ssst._utilities.QtApis
 .. autofunction:: ssst._utilities.configure_qt_wrapper
