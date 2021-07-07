@@ -36,7 +36,7 @@ def configure_qts(api: QtApis) -> None:
         api: The Qt wrapper API for qts to use.
     """
     if qts.wrapper is not None:
-        raise ssst.exceptions.QtsError(f"qts already configured: {qts.wrapper}")
+        raise ssst.exceptions.QtWrapperError(f"qts already configured: {qts.wrapper}")
 
     if qt_api_variable_name not in os.environ:
         os.environ[qt_api_variable_name] = api.value
@@ -180,14 +180,14 @@ def compile_paths(
             in no output.
 
     Raises:
-        ssst.QtsError: If the ``qts`` module is not already imported and the import
-            has not been forced.
+        ssst.QtWrapperError: If the ``qts`` module is not already imported and the
+            import has not been forced.
     """
     if output is None:
         output = _do_nothing
 
     if qts.wrapper is None:
-        raise ssst.QtsError(
+        raise ssst.QtWrapperError(
             "qts is expected to be configured before calling this function.",
         )
 

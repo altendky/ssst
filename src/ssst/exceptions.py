@@ -20,7 +20,7 @@ class InternalError(SsstError):
     __module__ = "ssst"
 
 
-class QtsError(SsstError):
+class QtWrapperError(SsstError):
     """To be used for any error related to dealing with qts that doesn't get a
     dedicated exception type.
     """

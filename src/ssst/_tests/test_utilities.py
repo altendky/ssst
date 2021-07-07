@@ -29,7 +29,7 @@ def test_configure_qts_raises(pytester: _pytest.pytester.Pytester) -> None:
         import qts
         qts.autoset_wrapper()
 
-        with pytest.raises(ssst.exceptions.QtsError, match="qts already configured"):
+        with pytest.raises(ssst.exceptions.QtWrapperError, match="qts already configured"):
             ssst._utilities.configure_qts(
                 api=ssst._utilities.QtApis.PyQt5,
             )
@@ -153,7 +153,7 @@ def test_compile_paths_raises_if_qts_not_imported(
 
     def test():
         with pytest.raises(
-            ssst.QtsError,
+            ssst.QtWrapperError,
             match="qts is expected to be configured before calling this function.",
         ):
             ssst._utilities.compile_paths(ui_paths=[])
