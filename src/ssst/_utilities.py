@@ -19,7 +19,7 @@ Qt wrapper API."""
 
 class QtApis(enum.Enum):
     """Supported Qt APIs.  Values correspond to qts names for each.  Generally used
-    as a parameter to :func:`ssst._utilities.configure_qts()`.
+    as a parameter to :func:`ssst._utilities.configure_qt_wrapper()`.
     """
 
     PyQt5 = "pyqt5"
@@ -29,7 +29,7 @@ class QtApis(enum.Enum):
     """PySide2 by Qt"""
 
 
-def configure_qts(api: QtApis) -> None:
+def configure_qt_wrapper(api: QtApis) -> None:
     """Set the configuration such that qts will use the specified Qt wrapper API.
 
     Args:

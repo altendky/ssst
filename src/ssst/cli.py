@@ -49,7 +49,7 @@ def gui(qt_api_string: str) -> None:  # pragma: no cover
     qt_api = qt_api_cli_names[qt_api_string]
 
     if qt_api is not None:
-        ssst._utilities.configure_qts(api=qt_api)
+        ssst._utilities.configure_qt_wrapper(api=qt_api)
 
     import ssst.gui.main
     import qtrio

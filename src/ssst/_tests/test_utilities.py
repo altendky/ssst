@@ -10,7 +10,7 @@ import ssst._tests
 import ssst._utilities
 
 
-def test_configure_qts_raises(pytester: _pytest.pytester.Pytester) -> None:
+def test_configure_qt_wrapper_raises(pytester: _pytest.pytester.Pytester) -> None:
     content = f"""
     import os
     import sys
@@ -30,7 +30,7 @@ def test_configure_qts_raises(pytester: _pytest.pytester.Pytester) -> None:
         qts.autoset_wrapper()
 
         with pytest.raises(ssst.exceptions.QtWrapperError, match="qts already configured"):
-            ssst._utilities.configure_qts(
+            ssst._utilities.configure_qt_wrapper(
                 api=ssst._utilities.QtApis.PyQt5,
             )
     """
@@ -43,7 +43,7 @@ def test_configure_qts_raises(pytester: _pytest.pytester.Pytester) -> None:
     argnames=["api"],
     argvalues=[[api] for api in ssst._utilities.QtApis],
 )
-def test_configure_qts_sets_requested_api(
+def test_configure_qt_wrapper_sets_requested_api(
     pytester: _pytest.pytester.Pytester,
     api: ssst._utilities.QtApis,
 ) -> None:
@@ -61,7 +61,7 @@ def test_configure_qts_sets_requested_api(
     def test():
         assert qts.wrapper is None
 
-        ssst._utilities.configure_qts(
+        ssst._utilities.configure_qt_wrapper(
             api=ssst._utilities.QtApis({api.value!r}),
         )
 
@@ -76,7 +76,7 @@ def test_configure_qts_sets_requested_api(
     argnames=["api"],
     argvalues=[[api] for api in ssst._utilities.QtApis],
 )
-def test_configure_qts_handles_env_var(
+def test_configure_qt_wrapper_handles_env_var(
     pytester: _pytest.pytester.Pytester,
     api: ssst._utilities.QtApis,
 ) -> None:
@@ -94,7 +94,7 @@ def test_configure_qts_handles_env_var(
     def test():
         assert qts.wrapper is None
 
-        ssst._utilities.configure_qts(api=42)
+        ssst._utilities.configure_qt_wrapper(api=42)
 
         assert qts.wrapper is not None
         assert qts.wrapper.name == {api.name!r}
