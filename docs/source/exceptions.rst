@@ -6,6 +6,6 @@ Exceptions
 .. autoclass:: ssst.InternalError
 .. autoclass:: ssst.InvalidBaseAddressError
 .. autoclass:: ssst.ModbusError
-.. autoclass:: ssst.QtpyError
+.. autoclass:: ssst.QtWrapperError
 .. autoclass:: ssst.ReuseError
 .. autoclass:: ssst.UnexpectedEmissionError

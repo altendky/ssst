@@ -4,17 +4,13 @@ import shutil
 import importlib_resources
 import pytest
 import _pytest.pytester
-import qtpy
+import qts
 
 import ssst._tests
 import ssst._utilities
 
 
-def test_qt_api_environment_variable_name() -> None:
-    assert qtpy.QT_API == ssst._utilities.qt_api_variable_name
-
-
-def test_configure_qtpy_raises(pytester: _pytest.pytester.Pytester) -> None:
+def test_configure_qt_wrapper_raises(pytester: _pytest.pytester.Pytester) -> None:
     content = f"""
     import os
     import sys
@@ -25,75 +21,18 @@ def test_configure_qtpy_raises(pytester: _pytest.pytester.Pytester) -> None:
     import ssst.exceptions
 
 
-    os.environ.pop(ssst._utilities.qt_api_variable_name)
+    if ssst._utilities.qt_api_variable_name in os.environ:
+        os.environ.pop(ssst._utilities.qt_api_variable_name)
 
 
     def test():
-        import qtpy
+        import qts
+        qts.autoset_wrapper()
 
-        with pytest.raises(ssst.exceptions.QtpyError, match="qtpy imported prior to"):
-            ssst._utilities.configure_qtpy(
+        with pytest.raises(ssst.exceptions.QtWrapperError, match="qts already configured"):
+            ssst._utilities.configure_qt_wrapper(
                 api=ssst._utilities.QtApis.PyQt5,
             )
-    """
-    pytester.makepyfile(content)
-    run_result = pytester.runpytest_subprocess()
-    run_result.assert_outcomes(passed=1)
-
-
-def test_configure_qtpy_does_not_import(pytester: _pytest.pytester.Pytester) -> None:
-    content = f"""
-    import os
-    import sys
-
-    import pytest
-
-    import ssst._utilities
-
-
-    os.environ.pop(ssst._utilities.qt_api_variable_name)
-
-
-    def test():
-        ssst._utilities.configure_qtpy(api=ssst._utilities.QtApis.PyQt5)
-
-        assert "qtpy" not in sys.modules
-    """
-    pytester.makepyfile(content)
-    run_result = pytester.runpytest_subprocess()
-    run_result.assert_outcomes(passed=1)
-
-
-@pytest.mark.parametrize(
-    argnames=["api_string", "api"],
-    argvalues=[[api.value, api] for api in ssst._utilities.QtApis],
-)
-def test_configure_qtpy_sets_requested_api(
-    pytester: _pytest.pytester.Pytester,
-    api_string: str,
-    api: ssst._utilities.QtApis,
-) -> None:
-    content = f"""
-    import os
-    import sys
-
-    import ssst._utilities
-
-    os.environ.pop(ssst._utilities.qt_api_variable_name)
-
-    
-    def test():
-        assert 'qtpy' not in sys.modules
-
-        ssst._utilities.configure_qtpy(
-            api=ssst._utilities.QtApis({api_string!r}),
-        )
-
-        assert "qtpy" not in sys.modules
-
-        import qtpy
-
-        assert qtpy.API == {api.value!r}
     """
     pytester.makepyfile(content)
     run_result = pytester.runpytest_subprocess()
@@ -104,7 +43,7 @@ def test_configure_qtpy_sets_requested_api(
     argnames=["api"],
     argvalues=[[api] for api in ssst._utilities.QtApis],
 )
-def test_configure_qtpy_handles_env_var(
+def test_configure_qt_wrapper_sets_requested_api(
     pytester: _pytest.pytester.Pytester,
     api: ssst._utilities.QtApis,
 ) -> None:
@@ -112,21 +51,53 @@ def test_configure_qtpy_handles_env_var(
     import os
     import sys
 
+    import qts
+
+    import ssst._utilities
+
+    os.environ.pop(ssst._utilities.qt_api_variable_name)
+
+    
+    def test():
+        assert qts.wrapper is None
+
+        ssst._utilities.configure_qt_wrapper(
+            api=ssst._utilities.QtApis({api.value!r}),
+        )
+
+        assert qts.wrapper.name == {api.name!r}
+    """
+    pytester.makepyfile(content)
+    run_result = pytester.runpytest_subprocess()
+    run_result.assert_outcomes(passed=1)
+
+
+@pytest.mark.parametrize(
+    argnames=["api"],
+    argvalues=[[api] for api in ssst._utilities.QtApis],
+)
+def test_configure_qt_wrapper_handles_env_var(
+    pytester: _pytest.pytester.Pytester,
+    api: ssst._utilities.QtApis,
+) -> None:
+    content = f"""
+    import os
+    import sys
+
+    import qts
+
     import ssst._utilities
 
     os.environ[ssst._utilities.qt_api_variable_name] = {api.value!r}
 
 
     def test():
-        assert 'qtpy' not in sys.modules
+        assert qts.wrapper is None
 
-        ssst._utilities.configure_qtpy(api=42)
+        ssst._utilities.configure_qt_wrapper(api=42)
 
-        assert "qtpy" not in sys.modules
-
-        import qtpy
-
-        assert qtpy.API == {api.value!r}
+        assert qts.wrapper is not None
+        assert qts.wrapper.name == {api.name!r}
     """
     pytester.makepyfile(content)
     run_result = pytester.runpytest_subprocess()
@@ -171,7 +142,7 @@ def test_compile_ui_creates_expected_path(tmp_path_with_ui: pathlib.Path) -> Non
     assert set(tmp_path_with_ui.iterdir()) == {source_ui, expected_ui_py}
 
 
-def test_compile_paths_raises_if_qtpy_not_imported(
+def test_compile_paths_raises_if_qts_not_imported(
     pytester: _pytest.pytester.Pytester,
 ) -> None:
     content = f"""
@@ -182,8 +153,8 @@ def test_compile_paths_raises_if_qtpy_not_imported(
 
     def test():
         with pytest.raises(
-            ssst.QtpyError,
-            match="QtPy is expected to be imported before calling this function.",
+            ssst.QtWrapperError,
+            match="qts is expected to be configured before calling this function.",
         ):
             ssst._utilities.compile_paths(ui_paths=[])
     """

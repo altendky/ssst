@@ -35,8 +35,8 @@ def pytest_configure(config: _pytest.config.Config) -> None:
     qt_api = ssst.cli.qt_api_cli_names[qt_api_string]
 
     if qt_api is not None:  # pragma: no branch
-        ssst._utilities.configure_qtpy(api=qt_api)
+        ssst._utilities.configure_qt_wrapper(api=qt_api)
 
-    # subprocessing to avoid import of qtpy, even in subprocessed tests
+    # subprocessing to avoid import of qts, even in subprocessed tests
     script_path = ssst._utilities.script_path(name="ssst")
     subprocess.run([os.fspath(script_path), "uic"], check=True)

@@ -1,11 +1,11 @@
 Utilities
 =========
 
-QtPy
-----
+Qt Wrapper
+----------
 
 .. autoclass:: ssst._utilities.QtApis
-.. autofunction:: ssst._utilities.configure_qtpy
+.. autofunction:: ssst._utilities.configure_qt_wrapper
 .. autodata:: ssst._utilities.qt_api_variable_name
 
 
